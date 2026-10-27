@@ -25,6 +25,7 @@ export function AuthForm({ mode }: { mode: "login" | "signup" }) {
     try {
       if (isSignup) {
         const fullName = String(data.get("fullName") ?? "").trim();
+        const courseDept = String(data.get("courseDept") ?? "").trim();
         const confirm = String(data.get("confirmPassword") ?? "");
         const email = String(data.get("email") ?? "").trim();
         if (password !== confirm) throw new Error("Passwords do not match.");
@@ -35,7 +36,7 @@ export function AuthForm({ mode }: { mode: "login" | "signup" }) {
           email: studentEmail(studentId),
           password,
           options: {
-            data: { full_name: fullName, student_id: studentId, contact_email: email || null },
+            data: { full_name: fullName, student_id: studentId, contact_email: email || null, course_dept: courseDept },
           },
         });
         if (signupError) throw signupError;
@@ -63,6 +64,12 @@ export function AuthForm({ mode }: { mode: "login" | "signup" }) {
         <label className="block">
           <span className="form-label">Full Name</span>
           <input className="field" name="fullName" autoComplete="name" required maxLength={120} />
+        </label>
+      )}
+      {isSignup && (
+        <label className="block">
+          <span className="form-label">Course / Department</span>
+          <input className="field" name="courseDept" maxLength={120} />
         </label>
       )}
       <label className="block">

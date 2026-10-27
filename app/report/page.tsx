@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import { ReportForm } from "@/components/report-form";
+import { Brand } from "@/components/brand";
 import { createClient } from "@/lib/supabase/server";
 
 export const dynamic = "force-dynamic";
@@ -18,14 +19,17 @@ export default async function ReportPage() {
     redirect("/login");
   }
   return (
-    <main className="min-h-screen bg-ndkc-cream px-4 py-8 sm:px-6">
-      <div className="mx-auto max-w-3xl rounded-2xl bg-white p-5 shadow-soft sm:p-9">
+    <main className="min-h-screen bg-ndkc-cream">
+      <header className="bg-ndkc-green px-5 py-4"><div className="mx-auto max-w-3xl"><Brand /></div></header>
+      <div className="mx-auto max-w-3xl px-4 py-8 sm:px-6">
+        <div className="rounded-2xl bg-white p-5 shadow-soft sm:p-9">
         <ReportForm reporter={{
           id: user.id,
           full_name: profile.full_name,
           student_id: profile.student_id,
           email: String(user.user_metadata.contact_email ?? ""),
         }} />
+        </div>
       </div>
     </main>
   );

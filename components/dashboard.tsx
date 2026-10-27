@@ -3,10 +3,12 @@
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { Bell, LogOut, Mail, Plus, Search, UserRound, SlidersHorizontal } from "lucide-react";
+import { ChevronDown, LogOut, Mail, Plus, Search, UserRound } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
-import type { Profile, PublicReport } from "@/lib/types";
+import type { Notification, OwnedReport, Profile, PublicReport } from "@/lib/types";
+import { NotificationDrawer } from "@/components/notification-drawer";
+import { OwnerReportManagement } from "@/components/owner-report-management";
 
 const PAGE_SIZE = 12;
 
@@ -14,7 +16,7 @@ function formatDate(value: string) {
   return new Intl.DateTimeFormat("en-PH", { dateStyle: "medium" }).format(new Date(`${value}T00:00:00`));
 }
 
-export function Dashboard({ profile, initialReports, updatesCount }: { profile: Profile; initialReports: PublicReport[]; updatesCount: number }) {
+export function Dashboard({ profile, initialReports, initialOwnedReports, notifications }: { profile: Profile; initialReports: PublicReport[]; initialOwnedReports: OwnedReport[]; notifications: Notification[] }) {
   const router = useRouter();
   const [reports, setReports] = useState(initialReports);
   const [search, setSearch] = useState("");
@@ -63,7 +65,7 @@ export function Dashboard({ profile, initialReports, updatesCount }: { profile: 
       <header className="bg-ndkc-green text-white">
         <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-5 py-4">
           <Link href="/dashboard" className="flex items-center gap-3">
-            <span className="grid h-11 w-11 place-items-center rounded-xl border border-white/25 bg-white/10 text-xs font-black text-ndkc-gold">NDKC</span>
+            <Image src="/Logo.jpg" alt="NDKC seal" width={44} height={44} className="h-11 w-11 rounded-full bg-white object-contain p-0.5" />
             <span className="hidden sm:block"><span className="block text-xs font-bold uppercase tracking-widest text-ndkc-gold">Notre Dame of Kidapawan College</span><span className="text-sm font-semibold">Lost &amp; Found</span></span>
           </Link>
           <div className="flex items-center gap-2 sm:gap-4">
@@ -71,7 +73,8 @@ export function Dashboard({ profile, initialReports, updatesCount }: { profile: 
               <UserRound size={18} className="text-ndkc-gold" />
               <span><span className="block text-sm font-semibold">{profile.full_name}</span><span className="block text-xs text-white/75">ID: {profile.student_id}</span></span>
             </div>
-            <button aria-label={`${updatesCount} reports updated in the last 7 days`} title="Reports updated in the last 7 days" className="relative rounded-lg p-2 hover:bg-white/10"><Bell size={20} /><span className="absolute -right-1 -top-1 grid h-4 min-w-4 place-items-center rounded-full bg-ndkc-gold px-1 text-[9px] font-extrabold text-ndkc-green">{updatesCount > 99 ? "99+" : updatesCount}</span></button>
+            {profile.is_admin && <Link href="/admin" className="rounded-lg px-3 py-2 text-sm font-bold text-ndkc-gold hover:bg-white/10">Admin</Link>}
+            <NotificationDrawer notifications={notifications} />
             {process.env.NEXT_PUBLIC_LOST_AND_FOUND_EMAIL ? (
               <a aria-label="Email the Lost and Found office" href={`mailto:${process.env.NEXT_PUBLIC_LOST_AND_FOUND_EMAIL}`} className="rounded-lg p-2 hover:bg-white/10"><Mail size={20} /></a>
             ) : (
@@ -97,8 +100,8 @@ export function Dashboard({ profile, initialReports, updatesCount }: { profile: 
           <div className="mb-5 flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
             <div><p className="text-xs font-bold uppercase tracking-[0.18em] text-ndkc-emerald">Community board</p><h2 className="mt-1 text-2xl font-extrabold">Recent reports</h2></div>
             <div className="grid gap-2 sm:grid-cols-[minmax(200px,1fr)_150px_170px]">
-              <label className="relative"><Search size={17} className="absolute left-3 top-3 text-stone-400" /><input className="field pl-9" placeholder="Search item or location" value={search} onChange={(e) => setSearch(e.target.value)} aria-label="Search reports" /></label>
-              <label className="relative"><SlidersHorizontal size={15} className="absolute left-3 top-3.5 text-stone-400" /><select className="field pl-9" value={type} onChange={(e) => setType(e.target.value)} aria-label="Filter report type"><option value="all">All reports</option><option value="lost">Lost items</option><option value="found">Found items</option></select></label>
+              <label className="relative"><Search size={17} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-stone-400" /><input className="field pl-10" placeholder="Search item or location" value={search} onChange={(e) => setSearch(e.target.value)} aria-label="Search reports" /></label>
+              <label className="relative"><select className="field appearance-none pr-10" value={type} onChange={(e) => setType(e.target.value)} aria-label="Filter report type"><option value="all">All reports</option><option value="lost">Lost items</option><option value="found">Found items</option></select><ChevronDown size={16} className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-stone-500" /></label>
               <select className="field" value={category} onChange={(e) => setCategory(e.target.value)} aria-label="Filter category"><option value="all">All categories</option>{categories.map((item) => <option key={item}>{item}</option>)}</select>
             </div>
           </div>
@@ -124,6 +127,8 @@ export function Dashboard({ profile, initialReports, updatesCount }: { profile: 
           )}
           {hasMore && <div className="mt-8 text-center"><button disabled={loading} onClick={loadMore} className="rounded-lg border border-ndkc-emerald px-5 py-3 text-sm font-bold text-ndkc-emerald hover:bg-emerald-50 disabled:opacity-60">{loading ? "Loading…" : "Load more reports"}</button></div>}
         </section>
+
+        <OwnerReportManagement initialReports={initialOwnedReports} />
       </div>
     </main>
   );

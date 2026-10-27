@@ -32,7 +32,19 @@ Import the project into Vercel, set both environment variables for the appropria
 
 ## Branding
 
-The interface uses NDKC green and gold. Place the approved campus image at `public/ndkc-campus.jpg` to enable the auth page background; without it the page uses a branded green gradient. The wordmark currently uses an NDKC text badge because no official logo asset was provided. Replace that badge in `components/brand.tsx` when an approved logo is available.
+The interface uses the supplied `public/School-bg.jpg` campus photo for the login and signup background and `public/Logo.jpg` for the official college seal. Keep these filenames' capitalization when deploying to a case-sensitive host.
+
+## Admin access and migrations
+
+Run the current [`supabase/schema.sql`](./supabase/schema.sql) in the Supabase SQL Editor to add profile metadata, admin access policies, report status management, and notifications. Promote an administrator from the SQL Editor using the exact student ID, for example:
+
+```sql
+update public.profiles
+set is_admin = true
+where student_id = 'YOUR_STUDENT_ID';
+```
+
+Only trusted project administrators should run that statement. The `/admin` route checks the database `profiles.is_admin` value, while RLS independently enforces report and profile access.
 
 ## Data protection notes
 

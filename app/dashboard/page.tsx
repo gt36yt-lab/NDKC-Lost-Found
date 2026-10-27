@@ -12,7 +12,7 @@ export default async function DashboardPage() {
 
   const { data: profileData, error: profileError } = await supabase
     .from("profiles")
-    .select("id, full_name, student_id")
+    .select("id, full_name, student_id, is_admin")
     .eq("id", user.id)
     .single();
   if (profileError || !profileData) {
@@ -20,21 +20,24 @@ export default async function DashboardPage() {
     redirect("/login");
   }
   const profile = profileData as Profile;
+  const { data: ownedReports, error: ownedReportsError } = await supabase.from("reports").select("*")
+    .eq("user_id", user.id).order("created_at", { ascending: false });
+  if (ownedReportsError) {
+    console.error("Unable to load owned reports", ownedReportsError);
+    throw new Error("Your reports are temporarily unavailable.");
+  }
+  const { data: notifications, error: notificationsError } = await supabase.from("notifications")
+    .select("id, report_id, message, created_at, read_at").eq("user_id", user.id)
+    .order("created_at", { ascending: false }).limit(8);
+  if (notificationsError) {
+    console.error("Unable to load notifications", notificationsError);
+    throw new Error("Notifications are temporarily unavailable.");
+  }
   const { data, error } = await supabase.from("public_reports").select("*")
     .order("created_at", { ascending: false }).range(0, 11);
   if (error) {
     console.error("Unable to load the public reports feed", error);
     throw new Error("The reports board is temporarily unavailable.");
   }
-  const weekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
-  const { count: updatesCount, error: updatesError } = await supabase
-    .from("public_reports")
-    .select("id", { count: "exact", head: true })
-    .gte("created_at", weekAgo);
-  if (updatesError) {
-    console.error("Unable to load the report update count", updatesError);
-    throw new Error("The reports board is temporarily unavailable.");
-  }
-
-  return <Dashboard profile={profile} initialReports={(data ?? []) as PublicReport[]} updatesCount={updatesCount ?? 0} />;
+  return <Dashboard profile={profile} initialReports={(data ?? []) as PublicReport[]} initialOwnedReports={ownedReports ?? []} notifications={notifications ?? []} />;
 }

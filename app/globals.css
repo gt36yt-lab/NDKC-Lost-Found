@@ -41,8 +41,8 @@ textarea:focus-visible {
 
 .auth-backdrop {
   background:
-    linear-gradient(120deg, rgba(0, 37, 18, 0.88), rgba(0, 77, 37, 0.76)),
-    url("/ndkc-campus.jpg") center / cover,
+    linear-gradient(120deg, rgba(0, 37, 18, 0.82), rgba(0, 77, 37, 0.7)),
+    url("/School-bg.jpg") center / cover,
     #004d25;
 }
 
