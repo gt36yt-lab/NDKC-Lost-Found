@@ -1,0 +1,55 @@
+@import "tailwindcss";
+
+@theme {
+  --color-ndkc-green: #004d25;
+  --color-ndkc-emerald: #0b532c;
+  --color-ndkc-gold: #f4c542;
+  --color-ndkc-cream: #f7f8f4;
+  --shadow-soft: 0 18px 50px rgba(12, 45, 27, 0.1);
+}
+
+:root {
+  color-scheme: light;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: #f7f8f4;
+  color: #17251d;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: 3px solid rgba(244, 197, 66, 0.8);
+  outline-offset: 2px;
+}
+
+.auth-backdrop {
+  background:
+    linear-gradient(120deg, rgba(0, 37, 18, 0.88), rgba(0, 77, 37, 0.76)),
+    url("/ndkc-campus.jpg") center / cover,
+    #004d25;
+}
+
+.field {
+  @apply w-full rounded-lg border border-stone-300 bg-white px-3.5 py-3 text-sm text-stone-900 placeholder:text-stone-400 focus:border-ndkc-emerald focus:outline-none focus:ring-2 focus:ring-ndkc-emerald/15;
+}
+
+.form-label {
+  @apply mb-1.5 block text-sm font-semibold text-stone-700;
+}
