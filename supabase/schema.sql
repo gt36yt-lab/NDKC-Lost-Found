@@ -129,6 +129,8 @@ returns trigger
 language plpgsql
 set search_path = ''
 as $$
+declare
+  admin_count bigint;
 begin
   if (select auth.uid()) is not null and not public.is_admin() and (
     new.is_admin is distinct from old.is_admin
@@ -140,6 +142,13 @@ begin
   ) then
     raise exception 'Only administrators can change administrator access';
   end if;
+  if old.is_admin and not new.is_admin then
+    perform pg_catalog.pg_advisory_xact_lock(pg_catalog.hashtext('ndkc-last-admin')::bigint);
+    select count(*) into admin_count from public.profiles where is_admin = true;
+    if admin_count <= 1 then
+      raise exception 'At least one administrator must remain';
+    end if;
+  end if;
   return new;
 end;
 $$;
@@ -148,6 +157,30 @@ drop trigger if exists protect_profile_admin_flag on public.profiles;
 create trigger protect_profile_admin_flag
   before update on public.profiles
   for each row execute function public.protect_profile_admin_flag();
+
+create or replace function public.protect_last_admin_delete()
+returns trigger
+language plpgsql
+set search_path = ''
+as $$
+declare
+  admin_count bigint;
+begin
+  if old.is_admin then
+    perform pg_catalog.pg_advisory_xact_lock(pg_catalog.hashtext('ndkc-last-admin')::bigint);
+    select count(*) into admin_count from public.profiles where is_admin = true;
+    if admin_count <= 1 then
+      raise exception 'At least one administrator must remain';
+    end if;
+  end if;
+  return old;
+end;
+$$;
+
+drop trigger if exists protect_last_admin_delete on public.profiles;
+create trigger protect_last_admin_delete
+  before delete on public.profiles
+  for each row execute function public.protect_last_admin_delete();
 
 create or replace function public.notify_report_status_change()
 returns trigger

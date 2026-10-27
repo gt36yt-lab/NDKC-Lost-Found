@@ -25,6 +25,7 @@ Signup uses a student ID in the form `3–32 letters, numbers, or hyphens`, plus
 | `NEXT_PUBLIC_SUPABASE_URL` | Supabase project URL |
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Supabase anon/publishable key; never put a service-role key in the browser |
 | `NEXT_PUBLIC_LOST_AND_FOUND_EMAIL` | Optional office contact address for the dashboard mail shortcut |
+| `SUPABASE_SERVICE_ROLE_KEY` | Server-only Supabase service role key required for admin account deletion and Auth identity updates. Never prefix this with `NEXT_PUBLIC_`. |
 
 ## Deploy to Vercel
 
@@ -36,7 +37,7 @@ The interface uses the supplied `public/School-bg.jpg` campus photo for the logi
 
 ## Admin access and migrations
 
-Run the current [`supabase/schema.sql`](./supabase/schema.sql) in the Supabase SQL Editor to add profile metadata, admin access policies, report status management, and notifications. Promote an administrator from the SQL Editor using the exact student ID, for example:
+Run the current [`supabase/schema.sql`](./supabase/schema.sql) in the Supabase SQL Editor to add profile metadata, admin access policies, report status management, and notifications. Promote the first administrator from the SQL Editor using the exact student ID, for example:
 
 ```sql
 update public.profiles

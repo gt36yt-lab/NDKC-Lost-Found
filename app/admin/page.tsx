@@ -17,7 +17,7 @@ export default async function AdminPage() {
 
   const [reportsResult, usersResult, totalReportsResult, completedReportsResult, totalUsersResult] = await Promise.all([
     supabase.from("reports").select("*").order("created_at", { ascending: false }).range(0, PAGE_SIZE - 1),
-    supabase.from("profiles").select("id, full_name, student_id, email, course_dept, created_at").order("created_at", { ascending: false }).range(0, PAGE_SIZE - 1),
+    supabase.from("profiles").select("id, full_name, student_id, email, course_dept, is_admin, created_at").order("created_at", { ascending: false }).range(0, PAGE_SIZE - 1),
     supabase.from("reports").select("id", { count: "exact", head: true }),
     supabase.from("reports").select("id", { count: "exact", head: true }).in("status", ["claimed", "resolved"]),
     supabase.from("profiles").select("id", { count: "exact", head: true }),
@@ -30,6 +30,7 @@ export default async function AdminPage() {
   }
 
   return <AdminDashboard
+    currentAdminId={user.id}
     initialReports={(reportsResult.data ?? []) as (PublicReport & { user_id: string; full_name: string; student_id: string; email: string })[]}
     initialUsers={(usersResult.data ?? []) as Profile[]}
     totalReports={totalReportsResult.count ?? 0}

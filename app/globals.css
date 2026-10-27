@@ -40,14 +40,27 @@ textarea:focus-visible {
 }
 
 .auth-backdrop {
-  background:
-    linear-gradient(120deg, rgba(0, 37, 18, 0.82), rgba(0, 77, 37, 0.7)),
-    url("/School-bg.jpg") center / cover,
-    #004d25;
+  position: relative;
+  isolation: isolate;
+  background: #004d25;
+}
+
+.auth-backdrop::before {
+  position: absolute;
+  z-index: -1;
+  inset: 0;
+  content: "";
+  background: url("/School-bg.jpg") center / cover;
+  opacity: 0.24;
+  filter: saturate(0.62);
 }
 
 .field {
   @apply w-full rounded-lg border border-stone-300 bg-white px-3.5 py-3 text-sm text-stone-900 placeholder:text-stone-400 focus:border-ndkc-emerald focus:outline-none focus:ring-2 focus:ring-ndkc-emerald/15;
+}
+
+.field-search {
+  padding-inline-start: 2.5rem;
 }
 
 .form-label {
